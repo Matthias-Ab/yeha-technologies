@@ -1,0 +1,6 @@
+<?php require __DIR__.'/../../bootstrap/app.php';role_required('admin');$db=Database::get();
+$K=['company_name'=>'Company name','email'=>'Public email','phone'=>'Phone','whatsapp'=>'WhatsApp number (with country code)','address'=>'Address'];
+if($_SERVER['REQUEST_METHOD']==='POST'){verify_csrf();$st=$db->prepare("INSERT INTO system_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)");
+ foreach($K as $k=>$l){$v=trim((string)($_POST[$k]??''));if(mb_strlen($v)>250)$v=mb_substr($v,0,250);$st->execute([$k,$v]);}
+ audit('update company info','settings');notice('Company information saved.');go('admin/settings.php');}
+$title='Company information';require __DIR__.'/../../app/Views/header.php';?><section class="section"><div class="container"><div class="dash"><?php require __DIR__.'/../../app/Views/admin_nav.php';?><div><h1>Company information</h1><p>Shown in the website footer.</p><form method="post" class="cardx"><?=csrf_field()?><?php foreach($K as $k=>$l):?><label><?=e($l)?></label><input class="form-control mb-2" name="<?=e($k)?>" maxlength="250" value="<?=e(setting($k))?>"><?php endforeach;?><button class="btn btn-dark">Save</button></form></div></div></div></section><?php require __DIR__.'/../../app/Views/footer.php';?>

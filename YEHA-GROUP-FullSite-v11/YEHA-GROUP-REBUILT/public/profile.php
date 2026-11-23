@@ -1,0 +1,13 @@
+<?php require __DIR__.'/../bootstrap/app.php';login_required();$db=Database::get();$uid=(int)user()['id'];
+if($_SERVER['REQUEST_METHOD']==='POST'){verify_csrf();
+ if(($_POST['action']??'')==='profile'){$n=trim((string)($_POST['name']??''));$ph=trim((string)($_POST['phone']??''));
+  if(mb_strlen($n)<2||mb_strlen($n)>120||mb_strlen($ph)>40)notice('Enter a valid name and phone number.');else{$db->prepare("UPDATE users SET name=?,phone=? WHERE id=?")->execute([$n,$ph,$uid]);$_SESSION['user']['name']=$n;notice('Profile updated.');}}
+ if(($_POST['action']??'')==='password'){$cur=(string)($_POST['current']??'');$new=(string)($_POST['new']??'');
+  if(!throttle('pw',5,900))notice('Too many attempts. Wait 15 minutes.');
+  else{$h=$db->prepare("SELECT password_hash FROM users WHERE id=?");$h->execute([$uid]);
+   if(!password_verify($cur,(string)$h->fetchColumn()))notice('Current password is incorrect.');elseif(strlen($new)<10||$new!==(string)($_POST['confirm']??''))notice('The new password must be at least 10 characters and match the confirmation.');
+   else{$db->prepare("UPDATE users SET password_hash=? WHERE id=?")->execute([password_hash($new,PASSWORD_DEFAULT),$uid]);session_regenerate_id(true);notice('Password changed.');}}}
+ go('profile.php');}
+$s=$db->prepare("SELECT name,email,phone FROM users WHERE id=?");$s->execute([$uid]);$u=$s->fetch();$title='My profile';require __DIR__.'/../app/Views/header.php';?><section class="section"><div class="container" style="max-width:640px"><h1>My profile</h1>
+<form method="post" class="cardx mb-4"><?=csrf_field()?><input type="hidden" name="action" value="profile"><label>Name</label><input class="form-control mb-2" name="name" maxlength="120" required value="<?=e($u['name'])?>"><label>Email (cannot be changed here)</label><input class="form-control mb-2" disabled value="<?=e($u['email'])?>"><label>Phone</label><input class="form-control mb-2" name="phone" maxlength="40" value="<?=e((string)$u['phone'])?>"><button class="btn btn-dark">Save profile</button></form>
+<form method="post" class="cardx"><?=csrf_field()?><input type="hidden" name="action" value="password"><h3>Change password</h3><input class="form-control mb-2" type="password" name="current" placeholder="Current password" required autocomplete="current-password"><input class="form-control mb-2" type="password" name="new" placeholder="New password (10+ characters)" required autocomplete="new-password"><input class="form-control mb-2" type="password" name="confirm" placeholder="Confirm new password" required autocomplete="new-password"><button class="btn btn-dark">Change password</button></form></div></section><?php require __DIR__.'/../app/Views/footer.php';?>

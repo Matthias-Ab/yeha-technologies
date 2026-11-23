@@ -1,0 +1,5 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^(app|bootstrap|database|storage)(/|$) - [F,L,NC]
+</IfModule>

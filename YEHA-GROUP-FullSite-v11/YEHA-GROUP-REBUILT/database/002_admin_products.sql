@@ -1,0 +1,6 @@
+-- Run after yeha_group.sql (phpMyAdmin > Import). Adds the tables the admin dashboard manages.
+USE yeha_group;
+CREATE TABLE IF NOT EXISTS product_categories(id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,name VARCHAR(120) UNIQUE NOT NULL) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS products(id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,category_id BIGINT UNSIGNED NULL,name VARCHAR(160) NOT NULL,slug VARCHAR(190) UNIQUE NOT NULL,summary VARCHAR(300),description TEXT,specifications TEXT,price DECIMAL(12,2) NULL,is_published TINYINT NOT NULL DEFAULT 0,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(category_id) REFERENCES product_categories(id) ON DELETE SET NULL,INDEX(is_published)) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS quotations(id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,customer_id BIGINT UNSIGNED NULL,product_id BIGINT UNSIGNED NULL,quantity INT UNSIGNED NOT NULL DEFAULT 1,message TEXT,status ENUM('new','reviewing','quoted','closed') NOT NULL DEFAULT 'new',created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE SET NULL,FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE SET NULL,INDEX(status)) ENGINE=InnoDB;
+INSERT IGNORE INTO product_categories(name) VALUES('Water Management'),('PCB & Electronics'),('Automation & Control');

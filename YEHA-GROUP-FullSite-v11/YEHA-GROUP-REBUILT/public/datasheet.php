@@ -1,0 +1,5 @@
+<?php require __DIR__.'/../bootstrap/app.php';$s=Database::get()->prepare("SELECT name,summary,description,specifications FROM products WHERE slug=? AND is_published=1");$s->execute([(string)($_GET['slug']??'')]);$p=$s->fetch();if(!$p){http_response_code(404);exit('Not found');}
+$sp=array_filter(array_map('trim',explode("\n",(string)$p['specifications'])));header('Content-Type: text/html; charset=utf-8');?>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title><?=e($p['name'])?> datasheet | YEHA GROUP</title><style>body{font-family:Arial,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#111}h1{border-bottom:3px solid #0b5ed7}small{color:#555}</style></head><body>
+<h1>YEHA GROUP — <?=e($p['name'])?></h1><p><?=e($p['summary'])?></p><h2>Description</h2><p><?=nl2br(e($p['description']))?></p><h2>Specifications</h2><ul><?php foreach($sp as $x):?><li><?=e($x)?></li><?php endforeach;?></ul>
+<p><small>Generated <?=date('Y-m-d')?>. Specifications are as entered by YEHA GROUP; confirm before purchase. Use your browser's Print &gt; Save as PDF.</small></p><p><button onclick="print()">Print / Save as PDF</button></p></body></html>

@@ -1,0 +1,9 @@
+<?php require __DIR__.'/../../bootstrap/app.php';role_required('admin');$db=Database::get();
+$q=['Users'=>"SELECT COUNT(*) FROM users",'Products'=>"SELECT COUNT(*) FROM products",'Published products'=>"SELECT COUNT(*) FROM products WHERE is_published=1",'Quotations'=>"SELECT COUNT(*) FROM quotations",'New messages'=>"SELECT COUNT(*) FROM contact_messages WHERE status='new'",'Requests awaiting approval'=>"SELECT COUNT(*) FROM service_requests WHERE status='submitted'",'New technician applications'=>"SELECT COUNT(*) FROM technician_applications WHERE status='submitted'",'New quotations'=>"SELECT COUNT(*) FROM quotations WHERE status='new'"];
+$stats=[];foreach($q as $l=>$sql)$stats[]=[$l,(int)$db->query($sql)->fetchColumn()];
+$log=$db->query("SELECT a.action,a.entity_type,a.entity_id,a.created_at,u.name FROM audit_logs a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.id DESC LIMIT 10")->fetchAll();
+$title='Admin dashboard';require __DIR__.'/../../app/Views/header.php';?>
+<section class="section"><div class="container"><h1>Admin dashboard</h1><p>Welcome, <?=e(user()['name'])?>.</p><div class="dash"><?php require __DIR__.'/../../app/Views/admin_nav.php';?><div>
+<div class="row"><?php foreach($stats as $s):?><div class="col-md-4 mb-3"><div class="cardx"><p><?=e($s[0])?></p><h2><?=$s[1]?></h2></div></div><?php endforeach;?></div>
+<h3 class="mt-3">Recent activity</h3><?php if(!$log):?><p>No activity recorded yet.</p><?php else:?><table class="table"><tr><th>When</th><th>Admin</th><th>Action</th><th>Item</th></tr><?php foreach($log as $r):?><tr><td><?=e($r['created_at'])?></td><td><?=e($r['name'])?></td><td><?=e($r['action'])?></td><td><?=e($r['entity_type'].' #'.$r['entity_id'])?></td></tr><?php endforeach;?></table><?php endif;?>
+</div></div></div></section><?php require __DIR__.'/../../app/Views/footer.php';?>

@@ -1,0 +1,1 @@
+<?php require __DIR__.'/../bootstrap/app.php';login_required();$m=['admin'=>'admin/index.php','staff'=>'staff/index.php','customer'=>'customer/index.php','technical'=>'technical/index.php'];go($m[user()['role']]??'index.php');

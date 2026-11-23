@@ -1,0 +1,3 @@
+(function(){if(window.yehaThree)return;var B=(document.currentScript&&document.currentScript.src||'').replace(/[^\/]*$/,''),S=[B+'vendor/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'],q=[],st=0;
+function go(i){if(window.THREE){st=2;return q.forEach(function(c){c[0]()})}if(i>=S.length){st=3;return q.forEach(function(c){c[1]&&c[1]()})}var s=document.createElement('script');s.src=S[i];s.onload=function(){go(i)};s.onerror=function(){go(i+1)};document.head.appendChild(s)}
+window.yehaThree=function(ok,fail){if(window.THREE)return ok();if(st===3)return fail&&fail();q.push([ok,fail]);if(!st){st=1;go(0)}}})();
